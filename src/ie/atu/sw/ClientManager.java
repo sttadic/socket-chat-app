@@ -5,11 +5,9 @@ import java.io.*;
 
 public class ClientManager {
 	private ArrayList<Connection> clients = new ArrayList<>();
-	private Connection server;
 
 	public void addClient(Connection connection) {
 		this.clients.add(connection);
-		this.server = new Connection(null, null, null, "Server");
 	}
 
 	public void runChat() {
@@ -38,7 +36,7 @@ public class ClientManager {
 	
 	// Remove client from list of clients and broadcast to all
 	private void removeClient(Connection client) {
-		broadcastMsg("SERVER: " + client.name() + " has left the chat!", server);
+		client.writer().println("SERVER: " + client.name() + " has left the chat!");
 		closeResources(client);
 		clients.remove(client);
 	}
