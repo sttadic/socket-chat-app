@@ -46,6 +46,11 @@ public class ChatClient {
 			while (true) {
 				out.print("Message: ");
 				sentMsg = scan.nextLine();
+				if (sentMsg.trim().equals("\\q")) {
+					socket.close();
+					out.println("Goodbye...");
+					return;
+				}
 				writer.println(sentMsg);
 
 				// Read and print the server's response
