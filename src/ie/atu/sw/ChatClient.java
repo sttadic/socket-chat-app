@@ -16,17 +16,25 @@ public class ChatClient {
 	}
 
 	private String setName() {
-		String uName = "";
+		String userName = "";
 		while (true) {
 			out.print("Please enter your name: ");
-			uName = scan.nextLine();
-			if (uName.isEmpty()) {
+			userName = scan.nextLine();
+			if (userName.isEmpty()) {
 				out.println("Name field cannot be empty!");
 				continue;
 			}
 			break;
 		}
-		return uName;
+		return userName;
+	}
+	
+	private void sendMessage() {
+		
+	}
+	
+	private void receiveMessage() {
+		
 	}
 
 	public void startClient() {

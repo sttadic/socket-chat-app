@@ -38,7 +38,8 @@ public class ClientManager {
 	
 	// Remove client from list of clients and broadcast to all
 	private void removeClient(Connection client) {
-		broadcastMsg("SERVER: Client " + client.name() + " has left the chat!", server);
+		broadcastMsg("SERVER: " + client.name() + " has left the chat!", server);
+		closeResources(client);
 		clients.remove(client);
 	}
 
