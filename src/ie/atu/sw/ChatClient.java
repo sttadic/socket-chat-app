@@ -7,24 +7,40 @@ import java.util.*;
 import static java.lang.System.out;
 
 public class ChatClient {
+	private final String userName;
 	private int port = 13;
 	private String hostname = "localhost";
 	private final Scanner scan;
 	
 	public ChatClient() {
 		this.scan = new Scanner(System.in);
+		this.userName = setName();
+	}
+	
+	private String setName() {
+		String uName = "";
+		while (true) {
+			out.println("Please enter your name: ");
+			uName = scan.nextLine();
+			if (uName.isEmpty()) {
+				out.println("Name cannot be empty! Please try again");
+				continue;
+			}
+			break;
+		}
+		return uName;
 	}
 	
 	public void startClient() {
 		
 		try (Socket socket = new Socket(hostname, port);
 			// Setup input and output streams
-			BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			PrintWriter output = new PrintWriter(socket.getOutputStream(), true)) {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)) {
 			
 			out.println("Connected to server on host: " + hostname);
 			// Read welcome message from the server
-			String receivedMsg = input.readLine();
+			String receivedMsg = reader.readLine();
 			out.println("Server: " + receivedMsg);
 			
 			// Send messages to the server
@@ -32,10 +48,10 @@ public class ChatClient {
 			while (true) {
 				out.print("Message: ");
 				sentMsg = scan.nextLine();
-				output.println(sentMsg);
+				writer.println(sentMsg);
 			
 			// Read and print the server's response
-			receivedMsg = input.readLine();
+			receivedMsg = reader.readLine();
 			out.println("Server: " + receivedMsg);
 			
 			}
@@ -51,6 +67,6 @@ public class ChatClient {
 	
 	
 	public static void main(String[] args) {
-		new ChatClient().startClient();
+		new ChatClient();
 	}
 }
