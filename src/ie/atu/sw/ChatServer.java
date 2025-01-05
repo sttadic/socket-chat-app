@@ -2,11 +2,17 @@ package ie.atu.sw;
 
 import java.io.*;
 import java.net.*;
+import java.util.List;
 
 import static java.lang.System.out;
 
 public class ChatServer {
 	private final static int PORT = 13;
+	private final ClientManager clientManager;
+	
+	public ChatServer() {
+		this.clientManager = new ClientManager();
+	}
 	
 	public void startServer() {
 		try (ServerSocket server = new ServerSocket(PORT)) {
@@ -14,15 +20,22 @@ public class ChatServer {
 			while (true) {
 				out.println("ChatServer listening on port " + PORT);
 				
-				try (Socket connection = server.accept();
+				try (Socket clientConnection = server.accept();
 					// Setup input and output stream
-					BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-					PrintWriter writer = new PrintWriter(connection.getOutputStream(), true)) { // autoFlush 
+					var reader = new BufferedReader(new InputStreamReader(clientConnection.getInputStream()));
+					var writer = new PrintWriter(clientConnection.getOutputStream(), true)) {
 					
-					out.println("Client connected from host " + connection.getInetAddress() + ", port: " + connection.getPort());
+					// Acknowledge client connection
+					out.println("Client connected from host " + clientConnection.getInetAddress() + ", port: " + clientConnection.getPort());
 					// Send welcome message to the client
 					writer.println("Hello from the ChatServer!");
+					// Get the name
+					String clientName = reader.readLine();
+					// Add connection to client manager
+					clientManager.addClient(new Connection(clientConnection, reader, writer, clientName));
 					
+					
+
 					// Continously read messages from the client
 					String receivedMsg;
 					while ((receivedMsg = reader.readLine()) != null) {
@@ -36,6 +49,7 @@ public class ChatServer {
 			e.printStackTrace();
 		}
 	}
+	
 	
 	public static void main(String[] args) {
 		new ChatServer().startServer();

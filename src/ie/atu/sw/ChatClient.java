@@ -7,14 +7,12 @@ import java.util.*;
 import static java.lang.System.out;
 
 public class ChatClient {
-	private final String userName;
 	private int port = 13;
 	private String hostname = "localhost";
 	private final Scanner scan;
 
 	public ChatClient() {
 		this.scan = new Scanner(System.in);
-		this.userName = setName();
 	}
 
 	private String setName() {
@@ -40,7 +38,9 @@ public class ChatClient {
 			// Read welcome message from the server
 			String receivedMsg = reader.readLine();
 			out.println("Server: " + receivedMsg);
-
+			
+			// Send the first message to set the name
+			writer.println(setName());
 			// Send messages to the server
 			String sentMsg;
 			while (true) {
