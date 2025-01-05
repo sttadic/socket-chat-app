@@ -1,51 +1,59 @@
 package ie.atu.sw;
 
-import java.net.*;
 import java.util.*;
 import java.io.*;
 
 public class ClientManager {
 	private ArrayList<Connection> clients = new ArrayList<>();
+	private Connection server;
 
 	public void addClient(Connection connection) {
 		this.clients.add(connection);
+		this.server = new Connection(null, null, null, "Server");
 	}
 
 	public void runChat() {
 		for (Connection client : clients) {
 			String msgFromClient;
-			var connection = client.connection();
 			var reader = client.reader();
-			var writer = client.writer();
-			var clientName = client.name();
-
+			
 			try {
 				while ((msgFromClient = reader.readLine()) != null) {
-					broadcastMsg(msgFromClient, clientName, writer);
+					// Client disconnects / leaves the chat
+					if (msgFromClient.equals("\\q")) removeClient(client);
+					// Broadcast message
+					broadcastMsg(msgFromClient, client);
 				}
 			} catch (IOException e) {
-				closeResources(connection, reader, writer);
+				closeResources(client);
+				break;
 			}
 
 		}
 	}
 
-	private void broadcastMsg(String message, String clientName, PrintWriter writer) {
-		writer.println(clientName.toUpperCase() + ": " + message);
+	private void broadcastMsg(String message, Connection client) {
+		client.writer().println(client.name().toUpperCase() + ": " + message);
+	}
+	
+	// Remove client from list of clients and broadcast to all
+	private void removeClient(Connection client) {
+		broadcastMsg("SERVER: Client " + client.name() + " has left the chat!", server);
+		clients.remove(client);
 	}
 
-	// Close all resources for particular connection
-	private void closeResources(Socket connection, BufferedReader reader, PrintWriter writer) {
+	// Close all resources for particular client's connection
+	private void closeResources(Connection client) {
 		try {
-			connection.close();
+			client.connection().close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		try {
-			reader.close();
+			client.reader().close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		writer.close();
+		client.writer().close();
 	}
 }
