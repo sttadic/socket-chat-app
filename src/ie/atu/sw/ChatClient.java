@@ -55,7 +55,7 @@ public class ChatClient {
 
 				// Read and print the server's response
 				receivedMsg = reader.readLine();
-				out.println("Server: " + receivedMsg);
+				out.println(receivedMsg);
 
 			}
 

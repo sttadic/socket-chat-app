@@ -2,7 +2,7 @@ package ie.atu.sw;
 
 import java.io.*;
 import java.net.*;
-import java.util.List;
+import java.util.concurrent.Executors;
 
 import static java.lang.System.out;
 
@@ -34,14 +34,8 @@ public class ChatServer {
 					// Add connection to client manager
 					clientManager.addClient(new Connection(clientConnection, reader, writer, clientName));
 					
-					
-
-					// Continously read messages from the client
-					String receivedMsg;
-					while ((receivedMsg = reader.readLine()) != null) {
-						out.println("Received: " + receivedMsg);
-						// Optionally send response back
-						writer.println("Message received: " + receivedMsg);
+					try(var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+						executor.execute(() -> clientManager.runChat());
 					}
 				}
 			}
