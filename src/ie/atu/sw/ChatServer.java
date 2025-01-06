@@ -38,7 +38,9 @@ public class ChatServer {
 
 	private void handleClient(Socket clientConnection) {
 		try (var reader = new BufferedReader(new InputStreamReader(clientConnection.getInputStream()));
-				var writer = new PrintWriter(clientConnection.getOutputStream(), true)) {
+			 var writer = new PrintWriter(clientConnection.getOutputStream(), true)) {
+
+			// Read the client's name
 			String clientName = reader.readLine();
 
 			// Add client to the client manager
@@ -51,15 +53,22 @@ public class ChatServer {
 			// Listen for client messages
 			String message;
 			while ((message = reader.readLine()) != null) {
+				// Remove client and bail out if message contains \q
 				if (message.equals("\\q")) {
 					clientManager.removeClient(connection);
-					break;
+					return;
 				}
 				clientManager.broadcastMsg(message, connection);
 			}
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			if (e instanceof SocketException) {
+				System.out.println("Connection lost to to the client from host '" + clientConnection.getInetAddress()
+						+ "', port: " + clientConnection.getPort());
+			} else {
+				System.out.println("Somethig went wrong: ");
+				e.printStackTrace();
+			}
 		}
 	}
 

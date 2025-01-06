@@ -10,7 +10,7 @@ public class ClientManager {
 	public void addClient(Connection connection) {
 		clients.add(connection);
 	}
-	
+
 	// Remove client from list of clients and broadcast to all
 	public void removeClient(Connection client) {
 		// Notify all clients about disconnected user
@@ -24,28 +24,30 @@ public class ClientManager {
 		for (Connection client : clients) {
 			// Don't broadcast to sender
 			if (sender != null && client.name().equals(sender.name())) continue;
-			
+
 			try {
 				client.writer().println(sender == null ? message : sender.name().toUpperCase() + ": " + message);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		
+
 	}
 
 	// Close all resources for particular client's connection
 	private void closeResources(Connection client) {
 		try {
-			client.connection().close();
+			if (client.reader() != null) client.reader().close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		if (client.writer() != null) client.writer().close();
+
 		try {
-			client.reader().close();
+			if (client.connection() != null) client.connection().close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		client.writer().close();
 	}
 }
