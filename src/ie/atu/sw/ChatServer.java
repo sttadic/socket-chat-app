@@ -38,7 +38,10 @@ public class ChatServer {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private void handleClient(Socket chatMemberConnecton) {
+		// Initialize client (chatRoomMember)
+		ChatRoomMember chatRoomMember = null;
 		try (var reader = new BufferedReader(new InputStreamReader(chatMemberConnecton.getInputStream()));
 			 var writer = new PrintWriter(chatMemberConnecton.getOutputStream(), true)) {
 
@@ -46,7 +49,7 @@ public class ChatServer {
 			String memberName = reader.readLine();
 
 			// Create a member and add member to the chat room manager
-			var chatRoomMember = new ChatRoomMember(chatMemberConnecton, reader, writer, memberName);
+			chatRoomMember = new ChatRoomMember(chatMemberConnecton, reader, writer, memberName);
 			chatRoomManager.joinRoom(chatRoomMember);
 
 			// Notify other members about new user
@@ -64,9 +67,12 @@ public class ChatServer {
 			}
 
 		} catch (IOException e) {
+			// In case connection to the client is lost for other reasons (not client entering \q)
 			if (e instanceof SocketException) {
 				System.out.println("Connection to client lost --> Hostname: '" + chatMemberConnecton.getInetAddress()
 						+ "', Port: " + chatMemberConnecton.getPort());
+				// Handle situations depending if connection is lost prior to or after entering the client name
+				if (chatRoomMember != null) chatRoomManager.leaveRoom(chatRoomMember);
 			} else {
 				System.out.println("Somethig went wrong: " + e.getMessage());
 			}

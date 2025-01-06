@@ -33,9 +33,7 @@ public class ChatClient {
 		writer.println(setName());
 		// Chat messages
 		while (running.get()) {
-			out.print("Message: ");
 			String outMessage = scan.nextLine();
-
 			// Exit chat
 			if (outMessage.trim().equals("\\q")) {
 				writer.println(outMessage);
@@ -120,9 +118,11 @@ public class ChatClient {
 			
 			executor.shutdown();
 		} catch (ConnectException e) {
-			out.println("Could not connect to the host at specified port!");
+			out.println("\r\nCould not connect to the host at specified port!\r\n");
 		} catch (UnknownHostException e) {
-			out.println("Could not connect to specified host");
+			out.println("\r\nCould not connect to specified host\r\n");
+		} catch (NoSuchElementException e) {
+			out.println("\r\nChat session terminated!\r\n");
 		}
 	}
 }
