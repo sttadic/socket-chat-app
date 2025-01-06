@@ -8,11 +8,11 @@ import static java.lang.System.out;
 
 public class ChatServer {
 	private final static int PORT = 13;
-	private final ClientManager clientManager;
+	private final ChatRoomManager chatRoomManager;
 	private final ExecutorService executor;
 
 	public ChatServer() {
-		this.clientManager = new ClientManager();
+		this.chatRoomManager = new ChatRoomManager();
 		this.executor = Executors.newVirtualThreadPerTaskExecutor();
 	}
 
@@ -38,35 +38,35 @@ public class ChatServer {
 		}
 	}
 
-	private void handleClient(Socket clientConnection) {
-		try (var reader = new BufferedReader(new InputStreamReader(clientConnection.getInputStream()));
-				var writer = new PrintWriter(clientConnection.getOutputStream(), true)) {
+	private void handleClient(Socket chatMemberConnecton) {
+		try (var reader = new BufferedReader(new InputStreamReader(chatMemberConnecton.getInputStream()));
+			 var writer = new PrintWriter(chatMemberConnecton.getOutputStream(), true)) {
 
 			// Read the client's name
-			String clientName = reader.readLine();
+			String memberName = reader.readLine();
 
-			// Add client to the client manager
-			var connection = new Connection(clientConnection, reader, writer, clientName);
-			clientManager.addClient(connection);
+			// Create a member and add member to the chat room manager
+			var chatRoomMember = new ChatRoomMember(chatMemberConnecton, reader, writer, memberName);
+			chatRoomManager.joinRoom(chatRoomMember);
 
-			// Notify clients about new user
-			clientManager.broadcastMsg("SERVER: " + clientName + " has joined the chat", null);
+			// Notify other members about new user
+			chatRoomManager.broadcastToRoom("SERVER: " + memberName + " has joined the chat", null);
 
-			// Listen for client messages
+			// Listen for members (clients) messages
 			String message;
 			while ((message = reader.readLine()) != null) {
-				// Remove client and bail out if message contains \q
+				// Remove member and bail out if message contains \q
 				if (message.equals("\\q")) {
-					clientManager.removeClient(connection);
+					chatRoomManager.leaveRoom(chatRoomMember);
 					return;
 				}
-				clientManager.broadcastMsg(message, connection);
+				chatRoomManager.broadcastToRoom(message, chatRoomMember);
 			}
 
 		} catch (IOException e) {
 			if (e instanceof SocketException) {
-				System.out.println("Connection to client lost --> Hostname: '" + clientConnection.getInetAddress()
-						+ "', Port: " + clientConnection.getPort());
+				System.out.println("Connection to client lost --> Hostname: '" + chatMemberConnecton.getInetAddress()
+						+ "', Port: " + chatMemberConnecton.getPort());
 			} else {
 				System.out.println("Somethig went wrong: " + e.getMessage());
 			}
