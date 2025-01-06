@@ -6,16 +6,28 @@ import java.util.concurrent.*;
 
 import static java.lang.System.out;
 
+/**
+ * The class {@code ChatServer} represents a server that listens for client
+ * connections, manages chat rooms, and broadcasts messages to connected clients.
+ */
 public class ChatServer {
 	public final static int PORT = 13;
 	private final ChatRoomManager chatRoomManager;
 	private final ExecutorService executor;
 
+	/**
+	 * Constructs a ChatServer and initializes chat room manager and thread
+	 * executor.
+	 */
 	public ChatServer() {
 		this.chatRoomManager = new ChatRoomManager();
 		this.executor = Executors.newVirtualThreadPerTaskExecutor();
 	}
 
+	/**
+	 * Starts the chat server and listens for incoming client connections.
+	 * Each client connection is handled in a separate virtual thread.
+	 */
 	public void startServer() {
 		try (ServerSocket server = new ServerSocket(PORT)) {
 			out.println("ChatServer started on port: " + PORT);
@@ -79,6 +91,7 @@ public class ChatServer {
 		}
 	}
 
+	// Shut down the thread executor gracefully
 	private void shutdownExecutor() {
 		executor.shutdown();
 		try {
@@ -90,6 +103,11 @@ public class ChatServer {
 		}
 	}
 
+	/**
+	 * Starts the ChatServer
+	 * 
+	 * @param args command line arguments (not used)
+	 */
 	public static void main(String[] args) {
 		new ChatServer().startServer();
 	}

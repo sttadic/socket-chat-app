@@ -4,20 +4,40 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.io.*;
 
+/**
+ * The {@code ChatRoomManager} class manages chat room members and facilitates 
+ * message broadcasting.
+ */
 public class ChatRoomManager {
 	private final List<ChatRoomMember> chatRoomMembers = new CopyOnWriteArrayList<>();
 
-	public void joinRoom(ChatRoomMember connection) {
-		chatRoomMembers.add(connection);
+	/**
+	 * Adds a new member to the chat room.
+	 * 
+	 * @param chatRoomMember the member representing new client
+	 */
+	public void joinRoom(ChatRoomMember chatRoomMember) {
+		chatRoomMembers.add(chatRoomMember);
 	}
 
-	// Remove member from a list of members, broadcast to all and clean resources
+	/**
+	 * Removes member from the chat room, notifies other members and cleans up
+	 * resources.
+	 * 
+	 * @param chatRoomMember the member to remove
+	 */
 	public void leaveRoom(ChatRoomMember chatRoomMember) {
 		broadcastToRoom("SERVER: " + chatRoomMember.name() + " has left the chat!", null);
 		closeResources(chatRoomMember);
 		chatRoomMembers.remove(chatRoomMember);
 	}
 
+	/**
+	 * Broadcasts a message to all member in the chat room.
+	 * 
+	 * @param message the message to broadcast
+	 * @param sender the sender of the message (null for server)
+	 */
 	public void broadcastToRoom(String message, ChatRoomMember sender) {
 		for (ChatRoomMember member : chatRoomMembers) {
 			// Don't broadcast to sender

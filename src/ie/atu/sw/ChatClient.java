@@ -8,6 +8,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.System.out;
 
+/**
+ * The {@code ChatClient} class represents a client for a chat application.
+ * Handles connecting to a chat server, sending messages, and receiving messages 
+ * from the server.
+ */
 public class ChatClient {
 	private final Scanner scan;
 	private final Socket socket;
@@ -15,6 +20,11 @@ public class ChatClient {
 	private PrintWriter writer;
 	private final AtomicBoolean running;
 
+	/**
+	 * Constructs a ChatClient and sets up input and output streams.
+	 * 
+	 * @param socket the socket connected to the chat server
+	 */
 	public ChatClient(Socket socket) {
 		this.scan = new Scanner(System.in);
 		this.socket = socket;
@@ -28,7 +38,12 @@ public class ChatClient {
 		}
 	}
 
-	public void sendMessage() {
+	/**
+	 * Sends messages to the chat server. The first message sets the username, 
+	 * and subsequent messages are broadcast to the chat room.
+	 * Typing '\q' exits the chat.
+	 */
+	private void sendMessage() {
 		// First message assigns username
 		writer.println(setName());
 		// Chat messages
@@ -46,7 +61,11 @@ public class ChatClient {
 		}
 	}
 
-	public void receiveMessage() {
+	/**
+	 * Receives messages from the chat server and displays them in the console.
+	 * Continues running until the client exits or the server disconnects.
+	 */
+	private void receiveMessage() {
 		try {
 			while (running.get()) {
 				String inMessage = reader.readLine();
@@ -105,13 +124,26 @@ public class ChatClient {
 		if (scan != null) scan.close();
 	}
 
-	
+	/**
+	 * The main method for starting the {@code ChatClient}. Reads the hostname
+	 * and port from command-line arguments, or uses default values.
+	 * 
+	 * @param args optional arguments for hostname and port
+	 * @throws ConnectException if specified port is unavailable
+	 * @throws UnknownHostException if the specified host is unknown
+	 * @throws NoSuchElementException if session is abrubted forcefully (ctrl+c)
+	 */
 	public static void main(String[] args) throws UnknownHostException, IOException {
-		Scanner scan = new Scanner(System.in);
 		// Default configuration
 		String host = "localhost";
 		int port = ChatServer.PORT;
 		
+		// Show usage info for too many arguments
+		if (args.length > 2) {
+			out.println("\r\nUsage: java ChatClient [host] [port]");
+			out.println("With no arguments -> host: " + host + ", port: " + port + "\r\n");
+			return;
+		}
 		// Read command line arguments and assign to appropriate variables
 		if (args.length > 0) host = args[0];
 		if (args.length > 1) port = Integer.parseInt(args[1]);
@@ -130,7 +162,7 @@ public class ChatClient {
 		} catch (ConnectException e) {
 			out.println("\r\nCould not connect to '" + host + "' at port " + port + "\r\n");
 		} catch (UnknownHostException e) {
-			out.println("\r\nCould not connect to host: " + host + "\r\n");
+			out.println("\r\nCould not connect to hostname: " + host + "\r\n");
 		} catch (NoSuchElementException e) {
 			out.println("\r\nChat session terminated!\r\n");
 		}
