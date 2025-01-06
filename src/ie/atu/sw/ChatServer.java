@@ -7,7 +7,7 @@ import java.util.concurrent.*;
 import static java.lang.System.out;
 
 public class ChatServer {
-	private final static int PORT = 13;
+	public final static int PORT = 13;
 	private final ChatRoomManager chatRoomManager;
 	private final ExecutorService executor;
 

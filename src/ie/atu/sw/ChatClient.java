@@ -107,20 +107,30 @@ public class ChatClient {
 
 	
 	public static void main(String[] args) throws UnknownHostException, IOException {
+		Scanner scan = new Scanner(System.in);
+		// Default configuration
+		String host = "localhost";
+		int port = ChatServer.PORT;
+		
+		// Read command line arguments and assign to appropriate variables
+		if (args.length > 0) host = args[0];
+		if (args.length > 1) port = Integer.parseInt(args[1]);
+
 		try {
-			Socket socket = new Socket("localhost", 13);
+			Socket socket = new Socket(host, port);
 			var chatClient = new ChatClient(socket);
 
 			var executor = Executors.newVirtualThreadPerTaskExecutor();
 
+			// Run receiveMessage() in separate virtual thread for each client
 			executor.execute(() -> chatClient.receiveMessage());
 			chatClient.sendMessage();
 			
 			executor.shutdown();
 		} catch (ConnectException e) {
-			out.println("\r\nCould not connect to the host at specified port!\r\n");
+			out.println("\r\nCould not connect to '" + host + "' at port " + port + "\r\n");
 		} catch (UnknownHostException e) {
-			out.println("\r\nCould not connect to specified host\r\n");
+			out.println("\r\nCould not connect to host: " + host + "\r\n");
 		} catch (NoSuchElementException e) {
 			out.println("\r\nChat session terminated!\r\n");
 		}
