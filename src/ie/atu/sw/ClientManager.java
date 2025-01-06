@@ -1,44 +1,37 @@
 package ie.atu.sw;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.io.*;
 
 public class ClientManager {
-	private ArrayList<Connection> clients = new ArrayList<>();
+	private final List<Connection> clients = new CopyOnWriteArrayList<>();
 
 	public void addClient(Connection connection) {
-		this.clients.add(connection);
-	}
-
-	public void runChat() {
-		for (Connection client : clients) {
-			String msgFromClient;
-			var reader = client.reader();
-			
-			try {
-				while ((msgFromClient = reader.readLine()) != null) {
-					// Client disconnects / leaves the chat
-					if (msgFromClient.equals("\\q")) removeClient(client);
-					// Broadcast message
-					broadcastMsg(msgFromClient, client);
-				}
-			} catch (IOException e) {
-				closeResources(client);
-				break;
-			}
-
-		}
-	}
-
-	private void broadcastMsg(String message, Connection client) {
-		client.writer().println(client.name().toUpperCase() + ": " + message);
+		clients.add(connection);
 	}
 	
 	// Remove client from list of clients and broadcast to all
-	private void removeClient(Connection client) {
-		client.writer().println("SERVER: " + client.name() + " has left the chat!");
+	public void removeClient(Connection client) {
+		// Notify all clients about disconnected user
+		broadcastMsg("SERVER: " + client.name() + " has left the chat!", null);
+		// Close client's resources and remove from list
 		closeResources(client);
 		clients.remove(client);
+	}
+
+	public void broadcastMsg(String message, Connection sender) {
+		for (Connection client : clients) {
+			// Don't broadcast to sender
+			if (sender != null && client.equals(sender)) continue;
+			
+			try {
+				client.writer().println(sender == null ? message : sender.name().toUpperCase() + ": " + message);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
 	}
 
 	// Close all resources for particular client's connection

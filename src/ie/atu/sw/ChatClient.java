@@ -116,7 +116,7 @@ public class ChatClient {
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
 		try {
-		Socket socket = new Socket("localhos", 13);
+		Socket socket = new Socket("localhost", 13);
 		var chatClient = new ChatClient(socket);
 		chatClient.sendMessage();
 		chatClient.receiveMessage();
