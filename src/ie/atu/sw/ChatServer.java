@@ -29,8 +29,10 @@ public class ChatServer {
 				executor.execute(() -> handleClient(clientConnection));
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (BindException e) {
+			out.println("Error! Port " + PORT + " is already in use.");
+		} catch (IOException e) {
+			out.println("Error starting the server: " + e.getMessage());
 		} finally {
 			shutdownExecutor();
 		}
@@ -38,7 +40,7 @@ public class ChatServer {
 
 	private void handleClient(Socket clientConnection) {
 		try (var reader = new BufferedReader(new InputStreamReader(clientConnection.getInputStream()));
-			 var writer = new PrintWriter(clientConnection.getOutputStream(), true)) {
+				var writer = new PrintWriter(clientConnection.getOutputStream(), true)) {
 
 			// Read the client's name
 			String clientName = reader.readLine();
@@ -63,11 +65,10 @@ public class ChatServer {
 
 		} catch (IOException e) {
 			if (e instanceof SocketException) {
-				System.out.println("Connection lost to to the client from host '" + clientConnection.getInetAddress()
-						+ "', port: " + clientConnection.getPort());
+				System.out.println("Connection to client lost --> Hostname: '" + clientConnection.getInetAddress()
+						+ "', Port: " + clientConnection.getPort());
 			} else {
-				System.out.println("Somethig went wrong: ");
-				e.printStackTrace();
+				System.out.println("Somethig went wrong: " + e.getMessage());
 			}
 		}
 	}

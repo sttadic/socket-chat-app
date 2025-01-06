@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.System.out;
 
@@ -18,7 +18,7 @@ public class ChatClient {
 	public ChatClient(Socket socket) {
 		this.scan = new Scanner(System.in);
 		this.socket = socket;
-		// Flag shared with all threads
+		// Atomic flag shared with all threads
 		this.running = new AtomicBoolean(true);
 		try {
 			this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -31,11 +31,12 @@ public class ChatClient {
 	public void sendMessage() {
 		// First message assigns username
 		writer.println(setName());
+		// Chat messages
 		while (running.get()) {
 			out.print("Message: ");
 			String outMessage = scan.nextLine();
 
-			// Close chat
+			// Exit chat
 			if (outMessage.trim().equals("\\q")) {
 				writer.println(outMessage);
 				running.set(false);
@@ -48,7 +49,6 @@ public class ChatClient {
 	}
 
 	public void receiveMessage() {
-
 		try {
 			while (running.get()) {
 				String inMessage = reader.readLine();
@@ -59,10 +59,8 @@ public class ChatClient {
 				out.println(inMessage);
 			}
 		} catch (Exception e) {
-			if (running.get())
-				exceptionHandler(e);
+			if (running.get()) exceptionHandler(e);
 		}
-
 	}
 
 	private String setName() {
@@ -93,27 +91,23 @@ public class ChatClient {
 
 	// Synchronized access to close resources method
 	private synchronized void closeResources() {
-		if (reader != null) {
-			try {
-				reader.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		if (socket != null) {
-			try {
-				socket.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		try {
+			if (reader != null) reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 
-		if (writer != null)
-			writer.close();
-		if (scan != null)
-			scan.close();
+		try {
+			if (socket != null) socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		if (writer != null) writer.close();
+		if (scan != null) scan.close();
 	}
 
+	
 	public static void main(String[] args) throws UnknownHostException, IOException {
 		try {
 			Socket socket = new Socket("localhost", 13);
