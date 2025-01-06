@@ -23,7 +23,7 @@ public class ClientManager {
 	public void broadcastMsg(String message, Connection sender) {
 		for (Connection client : clients) {
 			// Don't broadcast to sender
-			if (sender != null && client.equals(sender)) continue;
+			if (sender != null && client.name().equals(sender.name())) continue;
 			
 			try {
 				client.writer().println(sender == null ? message : sender.name().toUpperCase() + ": " + message);

@@ -31,7 +31,6 @@ public class ChatClient {
 	public void sendMessage() {
 		// First message assigns username
 		writer.println(setName());
-
 		while (running.get()) {
 			out.print("Message: ");
 			String outMessage = scan.nextLine();
@@ -49,22 +48,21 @@ public class ChatClient {
 	}
 
 	public void receiveMessage() {
-		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-			executor.execute(() -> {
-				try {
-					while (running.get()) {
-						String inMessage = reader.readLine();
-						if (inMessage == null) {
-							running.set(false); // Connection is closed
-							break;
-						}
-						out.println(inMessage);
-					}
-				} catch (Exception e) {
-					if (running.get()) exceptionHandler(e);
+
+		try {
+			while (running.get()) {
+				String inMessage = reader.readLine();
+				if (inMessage == null) {
+					running.set(false); // Connection is closed
+					break;
 				}
-			});
+				out.println(inMessage);
+			}
+		} catch (Exception e) {
+			if (running.get())
+				exceptionHandler(e);
 		}
+
 	}
 
 	private String setName() {
@@ -92,7 +90,7 @@ public class ChatClient {
 			out.println("Something went wrong. Chat session terminated.\n\r");
 		}
 	}
-	
+
 	// Synchronized access to close resources method
 	private synchronized void closeResources() {
 		if (reader != null) {
@@ -110,16 +108,23 @@ public class ChatClient {
 			}
 		}
 
-		if (writer != null) writer.close();
-		if (scan != null) scan.close();
+		if (writer != null)
+			writer.close();
+		if (scan != null)
+			scan.close();
 	}
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
 		try {
-		Socket socket = new Socket("localhost", 13);
-		var chatClient = new ChatClient(socket);
-		chatClient.sendMessage();
-		chatClient.receiveMessage();
+			Socket socket = new Socket("localhost", 13);
+			var chatClient = new ChatClient(socket);
+
+			var executor = Executors.newVirtualThreadPerTaskExecutor();
+
+			executor.execute(() -> chatClient.receiveMessage());
+			chatClient.sendMessage();
+			
+			executor.shutdown();
 		} catch (ConnectException e) {
 			out.println("Could not connect to the host at specified port!");
 		} catch (UnknownHostException e) {
