@@ -46,7 +46,7 @@ public class ChatRoomManager {
 			try {
 				member.writer().println(sender == null ? message : sender.name().toUpperCase() + ": " + message);
 			} catch (Exception e) {
-				e.printStackTrace();
+				System.out.println("Something went wrong: " + e.getMessage());
 			}
 		}
 
@@ -57,6 +57,7 @@ public class ChatRoomManager {
 		try {
 			if (chatRoomMember.reader() != null) chatRoomMember.reader().close();
 		} catch (IOException e) {
+			System.out.println("Error closing BufferedReader: " + e.getMessage());
 			e.printStackTrace();
 		}
 		
@@ -65,6 +66,7 @@ public class ChatRoomManager {
 		try {
 			if (chatRoomMember.connection() != null) chatRoomMember.connection().close();
 		} catch (IOException e) {
+			System.out.println("Error closing Socket: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}

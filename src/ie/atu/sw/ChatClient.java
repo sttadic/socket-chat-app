@@ -105,7 +105,7 @@ public class ChatClient {
 		if (e instanceof ConnectException) {
 			out.println("\r\nChatServer cannot be found: " + e.getMessage() + "\r\n");
 		} else if (e instanceof SocketException) {
-			out.println("\r\nChat session terminated due to an error: " + e.getMessage() + "\r\n");
+			out.println("\r\nServer not responding: " + e.getMessage() + "\r\n");
 		} else {
 			out.println("\r\nSomething went wrong: " + e.getMessage() + "\n\r");
 			e.printStackTrace();

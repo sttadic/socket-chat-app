@@ -83,7 +83,7 @@ public class ChatServer {
 			if (e instanceof SocketException) {
 				System.out.println("Connection to client lost --> Hostname: '" + chatMemberConnecton.getInetAddress()
 						+ "', Port: " + chatMemberConnecton.getPort());
-				// Handle situations depending if connection is lost prior to or after entering the client name
+				// Handle situations based on wheather connection is lost before or after entering the client name
 				if (chatRoomMember != null) chatRoomManager.leaveRoom(chatRoomMember);
 			} else {
 				System.out.println("Somethig went wrong: " + e.getMessage());
