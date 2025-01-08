@@ -136,9 +136,6 @@ public class ChatClient {
 	 * and port from command-line arguments, or uses default values.
 	 * 
 	 * @param args optional arguments for hostname and port
-	 * @throws ConnectException if specified port is unavailable
-	 * @throws UnknownHostException if the specified host is unknown
-	 * @throws Exception if error occures for any other reason
 	 */
 	public static void main(String[] args) {
 		// Default configuration
